@@ -467,9 +467,12 @@ class Factory {
             // calculate stock
             $orderProducts = self::getOrderProducts($orderId);
             foreach ($orderProducts as $row) {
-                $prepare = $db->prepare("UPDATE products SET stock = stock - :quantity WHERE id = :productId");
-                $prepare->bindParam(":quantity", $row->quantity);
-                $prepare->bindParam(":id", $row->productId);
+                $product = self::getProduct($row->productId);
+
+                $stock = $product->stock - $row->quantity;
+
+                $sql = "UPDATE products SET stock = $stock WHERE id = $row->productId";
+                $prepare = $db->prepare($sql);
                 $prepare->execute();
             }
 
