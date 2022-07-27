@@ -463,6 +463,16 @@ class Factory {
         } else {
             $db = new Db();
             $db = $db->connect();
+
+            // calculate stock
+            $orderProducts = self::getOrderProducts($orderId);
+            foreach ($orderProducts as $row) {
+                $prepare = $db->prepare("UPDATE products SET stock = stock - :quantity WHERE id = :productId");
+                $prepare->bindParam(":quantity", $row->quantity);
+                $prepare->bindParam(":id", $row->productId);
+                $prepare->execute();
+            }
+
             $prepare = $db->prepare("UPDATE orders SET status = 1 WHERE id = :orderId");
             $prepare->bindParam(":orderId", $orderId);
             $result = $prepare->execute();
